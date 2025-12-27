@@ -4,6 +4,92 @@
 **Date**: 2025-12-26  
 **Purpose**: Define interfaces for screens, widgets, providers, and services
 
+## UI Design Standards
+
+### Approved UI Component Libraries
+
+This project uses the following libraries for consistent, professional UI:
+
+#### **GetWidget** (v4.0.0+)
+- **Usage**: Buttons, Cards, Badges, Ratings, Avatars
+- **Why**: 1000+ pre-built Material 3 widgets, saves development time
+- **Documentation**: https://www.getwidget.dev/
+- **Examples**: See `lib/features/cards/screens/ui_showcase_screen.dart`
+
+**Common Components:**
+```dart
+// Buttons
+GFButton(
+  onPressed: () {},
+  text: 'Label',
+  type: GFButtonType.solid, // or outline, transparent
+  icon: Icon(Icons.icon_name),
+)
+
+// Cards
+GFCard(
+  title: GFListTile(title: Text('Title')),
+  content: Text('Content'),
+  buttonBar: GFButtonBar(children: [...]),
+)
+
+// Badges
+GFBadge(text: 'Label', color: GFColors.SUCCESS)
+
+// Ratings
+GFRating(value: 3.5, onChanged: (v) {}, color: GFColors.WARNING)
+```
+
+#### **Shimmer** (v3.0.0+)
+- **Usage**: Loading placeholders for lists and content
+- **Why**: Professional loading UX during data fetching
+- **Pattern**: Always show shimmer while loading, never empty states
+
+```dart
+if (isLoading) {
+  return Shimmer.fromColors(
+    baseColor: Colors.grey[300]!,
+    highlightColor: Colors.grey[100]!,
+    child: _buildSkeleton(),
+  );
+}
+```
+
+#### **Flutter Spinkit** (v5.2.0+)
+- **Usage**: Loading indicators for actions (save, submit, sync)
+- **Why**: Variety of animations for different contexts
+- **Preferred**: `SpinKitFadingCircle`, `SpinKitThreeBounce`, `SpinKitWave`
+
+```dart
+SpinKitFadingCircle(
+  color: Theme.of(context).colorScheme.primary,
+  size: 50.0,
+)
+```
+
+#### **Animations** (v2.0.11)
+- **Usage**: Page transitions, shared element animations
+- **Why**: Smooth, native-feeling transitions
+- **Pattern**: Use `OpenContainer` for card → detail transitions
+
+### UI Consistency Rules
+
+1. **Material 3 First**: All components must use Material 3 design
+2. **Theme Colors**: Use `Theme.of(context).colorScheme.*` for all colors
+3. **Loading States**: 
+   - Shimmer for content loading (lists, cards)
+   - SpinKit for action loading (buttons, forms)
+4. **Buttons**:
+   - Primary actions: `GFButtonType.solid`
+   - Secondary actions: `GFButtonType.outline`
+   - Tertiary actions: `GFButtonType.transparent`
+5. **Cards**: Use `GFCard` for all card layouts (decks, stats, info)
+6. **Spacing**: Follow Material 3 spacing (8dp grid)
+7. **Typography**: Use theme text styles, never hardcode sizes
+8. **Accessibility**: All interactive elements must have semantic labels
+
+---
+
 ## Navigation Structure
 
 ```dart
@@ -442,6 +528,8 @@ class FlashCard extends StatefulWidget {
 
 **Purpose**: Display rating buttons (Basic or Smart mode)
 
+**UI Library**: **GetWidget** (GFButton) - Follow UI Design Standards
+
 **Properties**:
 ```dart
 class RatingButtons extends StatelessWidget {
@@ -459,10 +547,28 @@ class RatingButtons extends StatelessWidget {
 ```
 
 **Behavior**:
-- Basic mode: Shows "Know" (5) and "Forgot" (1) buttons (Row with 2 ElevatedButtons)
-- Smart mode: Shows "😖 Hard (1 day)", "😐 Normal (3 days)", "😄 Easy (7 days)" (Row with 3 buttons)
+- Basic mode: Shows "Know" (5) and "Forgot" (1) buttons (Row with 2 GFButtons)
+- Smart mode: Shows "😖 Hard (1 day)", "😐 Normal (3 days)", "😄 Easy (7 days)" (Row with 3 GFButtons)
 - Calls `onRate(rating)` when button pressed
 - Disables buttons if `disabled == true` (grayed out, non-interactive)
+
+**Implementation Requirements**:
+- Use `GFButton` from GetWidget library
+- Primary action (Know/Easy): `GFButtonType.solid` with full width
+- Secondary actions (Forgot/Hard/Normal): `GFButtonType.outline`
+- Follow spacing rules: 16dp between buttons (SizedBox)
+- Use theme colors: `Theme.of(context).colorScheme.primary`
+- Example:
+  ```dart
+  GFButton(
+    onPressed: disabled ? null : () => onRate(5),
+    type: GFButtonType.solid,
+    text: "Know",
+    fullWidthButton: true,
+    color: Theme.of(context).colorScheme.primary,
+  )
+  ```
+
 
 ---
 
