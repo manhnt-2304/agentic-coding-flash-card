@@ -88,7 +88,7 @@ class DeckDetailScreen extends ConsumerWidget {
                   data: (cards) {
                     if (cards.isEmpty) {
                       return _EmptyState(
-                        onAddCard: () => _showComingSoon(context),
+                        deckId: deckId,
                       );
                     }
                     
@@ -144,12 +144,6 @@ class DeckDetailScreen extends ConsumerWidget {
         loading: () => null,
         error: (_, __) => null,
       ),
-    );
-  }
-  
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Coming in Task 2.2')),
     );
   }
   
@@ -357,9 +351,9 @@ class _CardPreviewTile extends StatelessWidget {
 
 /// Widget showing empty state when deck has no cards
 class _EmptyState extends StatelessWidget {
-  final VoidCallback onAddCard;
+  final String deckId;
   
-  const _EmptyState({required this.onAddCard});
+  const _EmptyState({required this.deckId});
   
   @override
   Widget build(BuildContext context) {
@@ -386,7 +380,14 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           ElevatedButton.icon(
-            onPressed: onAddCard,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CardEditorScreen(deckId: deckId),
+                ),
+              );
+            },
             icon: const Icon(Icons.add),
             label: const Text('Add First Card'),
           ),

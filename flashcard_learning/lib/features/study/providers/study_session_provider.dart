@@ -16,6 +16,7 @@ class StudySessionState {
   final int cardsReviewed;
   final int cardsKnown;
   final int cardsForgot;
+  final bool isLoading; // New: Track if cards are still being loaded
 
   StudySessionState({
     required this.cards,
@@ -26,11 +27,13 @@ class StudySessionState {
     required this.cardsReviewed,
     required this.cardsKnown,
     required this.cardsForgot,
+    this.isLoading = true, // Default to loading state
   });
 
   Card? get currentCard =>
       currentIndex < cards.length ? cards[currentIndex] : null;
-  bool get isComplete => currentIndex >= cards.length;
+  // Only mark complete if cards are loaded AND we've reached the end
+  bool get isComplete => !isLoading && currentIndex >= cards.length;
 
   StudySessionState copyWith({
     List<Card>? cards,
@@ -41,6 +44,7 @@ class StudySessionState {
     int? cardsReviewed,
     int? cardsKnown,
     int? cardsForgot,
+    bool? isLoading,
   }) {
     return StudySessionState(
       cards: cards ?? this.cards,
@@ -51,6 +55,7 @@ class StudySessionState {
       cardsReviewed: cardsReviewed ?? this.cardsReviewed,
       cardsKnown: cardsKnown ?? this.cardsKnown,
       cardsForgot: cardsForgot ?? this.cardsForgot,
+      isLoading: isLoading ?? this.isLoading,
     );
   }
 }
@@ -115,7 +120,11 @@ class StudySessionNotifier extends StateNotifier<StudySessionState> {
       cards = allCards;
     }
 
-    state = state.copyWith(cards: cards);
+    // Update state with loaded cards and mark loading as complete
+    state = state.copyWith(
+      cards: cards,
+      isLoading: false,
+    );
   }
 
   /// Flip the current card

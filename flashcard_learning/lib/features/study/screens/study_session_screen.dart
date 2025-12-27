@@ -68,7 +68,7 @@ class StudySessionScreen extends ConsumerWidget {
     final sessionState = ref.watch(studySessionProvider(args));
 
     // Show loading while cards are being loaded
-    if (sessionState.cards.isEmpty && !sessionState.isComplete) {
+    if (sessionState.isLoading) {
       return Scaffold(
         appBar: AppBar(
           title: Text('Study Session'),
@@ -81,7 +81,35 @@ class StudySessionScreen extends ConsumerWidget {
 
     // Show completion screen when all cards reviewed
     if (sessionState.isComplete) {
-      // Navigate to SessionSummaryScreen
+      // Check if no cards were reviewed (empty deck case)
+      if (sessionState.cardsReviewed == 0) {
+        // Return to previous screen with a message
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                args.mode == StudyMode.smart 
+                  ? 'No cards due for review!' 
+                  : 'This deck has no cards yet. Add some cards first.',
+              ),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        });
+        
+        // Show loading while navigating back
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Study Session'),
+          ),
+          body: const Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+      
+      // Navigate to SessionSummaryScreen for completed sessions
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.of(context).pushReplacementNamed(
           '/session-summary',
