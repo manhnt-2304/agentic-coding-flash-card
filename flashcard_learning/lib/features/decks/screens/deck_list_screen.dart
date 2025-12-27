@@ -16,6 +16,14 @@ class DeckListScreen extends ConsumerWidget {
         title: const Text('Flashcard Decks'),
         elevation: 0,
         actions: [
+          // UI Showcase button
+          IconButton(
+            icon: const Icon(Icons.palette_outlined),
+            tooltip: 'UI Components Showcase',
+            onPressed: () {
+              Navigator.pushNamed(context, '/ui-showcase');
+            },
+          ),
           // Demo button to showcase FlashCard widget
           IconButton(
             icon: const Icon(Icons.play_circle_outline),

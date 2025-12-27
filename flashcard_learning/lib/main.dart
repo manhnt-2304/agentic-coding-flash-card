@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flashcard_learning/features/decks/screens/deck_list_screen.dart';
 import 'package:flashcard_learning/features/cards/screens/flash_card_demo_screen.dart';
+import 'package:flashcard_learning/features/cards/screens/ui_showcase_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -39,6 +40,7 @@ class MyApp extends StatelessWidget {
       home: const DeckListScreen(),
       routes: {
         '/flash-card-demo': (context) => const FlashCardDemoScreen(),
+        '/ui-showcase': (context) => const UIShowcaseScreen(),
       },
     );
   }
