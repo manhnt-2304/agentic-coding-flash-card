@@ -22,13 +22,13 @@
 
 ## Progress Summary
 
-**Completed**: 8/44 tasks (18%)
+**Completed**: 9/44 tasks (20%)
 - ✅ Phase 0: Tasks 0.1, 0.2, 0.3 (Project setup, Database, SM-2 Algorithm)
-- ✅ User Story 1: Tasks 1.1, 1.2, 1.3, 1.4, 1.5 (Deck Repository, Card Repository, DeckList Screen UI, FlashCard Widget, RatingButtons Widget)
+- ✅ User Story 1: Tasks 1.1, 1.2, 1.3, 1.4, 1.5, 1.6 (Deck Repository, Card Repository, DeckList Screen UI, FlashCard Widget, RatingButtons Widget, Study Session Screen)
 
-**In Progress**: Task 1.6 (Study Session Screen)
+**In Progress**: Task 1.7 (Session Summary Screen)
 
-**Remaining**: 36 tasks across 9 user stories
+**Remaining**: 35 tasks across 9 user stories
 
 ## Task Organization
 
