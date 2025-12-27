@@ -4,6 +4,7 @@ import 'package:flashcard_learning/features/decks/screens/deck_list_screen.dart'
 import 'package:flashcard_learning/features/cards/screens/flash_card_demo_screen.dart';
 import 'package:flashcard_learning/features/cards/screens/ui_showcase_screen.dart';
 import 'package:flashcard_learning/features/cards/screens/rating_buttons_demo_screen.dart';
+import 'package:flashcard_learning/features/study/screens/study_session_demo_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -43,6 +44,7 @@ class MyApp extends StatelessWidget {
         '/flash-card-demo': (context) => const FlashCardDemoScreen(),
         '/ui-showcase': (context) => const UIShowcaseScreen(),
         '/rating-buttons-demo': (context) => const RatingButtonsDemoScreen(),
+        '/study-session-demo': (context) => const StudySessionDemoScreen(),
       },
     );
   }

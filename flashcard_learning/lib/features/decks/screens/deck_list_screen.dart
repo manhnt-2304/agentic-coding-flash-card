@@ -24,6 +24,14 @@ class DeckListScreen extends ConsumerWidget {
               Navigator.pushNamed(context, '/ui-showcase');
             },
           ),
+          // Study Session Demo button (Task 1.6)
+          IconButton(
+            icon: const Icon(Icons.school_outlined),
+            tooltip: 'Study Session Demo (Task 1.6)',
+            onPressed: () {
+              Navigator.pushNamed(context, '/study-session-demo');
+            },
+          ),
           // RatingButtons Demo button (Task 1.5)
           IconButton(
             icon: const Icon(Icons.star_outline),
