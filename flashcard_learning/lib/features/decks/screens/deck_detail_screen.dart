@@ -6,12 +6,21 @@ import 'package:flashcard_learning/data/repositories/card_repository.dart';
 import 'package:flashcard_learning/core/navigation/routes.dart';
 import 'package:flashcard_learning/features/study/screens/study_session_screen.dart' hide databaseProvider;
 import 'package:flashcard_learning/features/decks/providers/deck_provider.dart';
+import 'package:flashcard_learning/features/cards/screens/card_editor_screen.dart';
 
-/// Provider for deck by ID (converts Future to Stream for AsyncValue)
-final deckByIdProvider = StreamProvider.family<DeckWithCardCount?, String>((ref, deckId) async* {
+/// Provider for deck by ID (watches for changes in real-time)
+final deckByIdProvider = StreamProvider.family<DeckWithCardCount?, String>((ref, deckId) {
   final repo = ref.watch(deckRepositoryProvider);
-  final deck = await repo.getDeckById(deckId);
-  yield deck;
+  // Watch all decks and filter for this specific deck ID
+  // This ensures we get updates when the deck is renamed or card count changes
+  return repo.watchAllDecks().map((decks) {
+    try {
+      return decks.firstWhere((deck) => deck.id == deckId);
+    } catch (e) {
+      // Deck not found, return null
+      return null;
+    }
+  });
 });
 
 /// Provider for card repository (TODO: Move to shared providers file)
@@ -55,10 +64,7 @@ class DeckDetailScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.more_vert),
             onPressed: () {
-              // TODO Task 2.3: Show menu (rename, delete)
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Menu coming in Task 2.3')),
-              );
+              _showDeckMenu(context, ref, deckAsync.value);
             },
           ),
         ],
@@ -146,6 +152,113 @@ class DeckDetailScreen extends ConsumerWidget {
       const SnackBar(content: Text('Coming in Task 2.2')),
     );
   }
+  
+  void _showDeckMenu(BuildContext context, WidgetRef ref, DeckWithCardCount? deck) {
+    if (deck == null) return;
+    
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.edit),
+            title: const Text('Rename Deck'),
+            onTap: () {
+              Navigator.pop(context);
+              _showRenameDialog(context, ref, deck);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.delete, color: Colors.red),
+            title: const Text('Delete Deck', style: TextStyle(color: Colors.red)),
+            onTap: () {
+              Navigator.pop(context);
+              _confirmDelete(context, ref, deck);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+  
+  void _showRenameDialog(BuildContext context, WidgetRef ref, DeckWithCardCount deck) {
+    final controller = TextEditingController(text: deck.name);
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rename Deck'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Deck Name',
+            hintText: 'Enter new name',
+          ),
+          autofocus: true,
+          onSubmitted: (value) async {
+            if (value.trim().isNotEmpty) {
+              await ref.read(deckRepositoryProvider).updateDeck(
+                deck.copyWith(name: value.trim()),
+              );
+              if (context.mounted) {
+                Navigator.pop(context);
+              }
+            }
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final newName = controller.text.trim();
+              if (newName.isNotEmpty) {
+                await ref.read(deckRepositoryProvider).updateDeck(
+                  deck.copyWith(name: newName),
+                );
+                if (context.mounted) {
+                  Navigator.pop(context);
+                }
+              }
+            },
+            child: const Text('Rename'),
+          ),
+        ],
+      ),
+    );
+  }
+  
+  void _confirmDelete(BuildContext context, WidgetRef ref, DeckWithCardCount deck) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Deck'),
+        content: Text(
+          'Are you sure you want to delete "${deck.name}"? This will also delete all ${deck.cardCount} cards in this deck.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await ref.read(deckRepositoryProvider).deleteDeck(deck.id);
+              if (context.mounted) {
+                Navigator.pop(context); // Close dialog
+                Navigator.pop(context); // Go back to deck list
+              }
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 /// Widget displaying deck information (card count, last studied date)
@@ -177,8 +290,12 @@ class _DeckInfoCard extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton.icon(
               onPressed: () {
-                // TODO Task 2.2: Navigate to CardEditorScreen
-                // For now, show placeholder message
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CardEditorScreen(deckId: deck.id),
+                  ),
+                );
               },
               icon: const Icon(Icons.add),
               label: const Text('Add Card'),
@@ -218,7 +335,15 @@ class _CardPreviewTile extends StatelessWidget {
         subtitle: Text(_truncate(card.backText, 50)),
         trailing: const Icon(Icons.chevron_right),
         onTap: () {
-          // TODO Task 2.5: Navigate to CardEditorScreen for editing
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => CardEditorScreen(
+                deckId: card.deckId,
+                cardId: card.id,
+              ),
+            ),
+          );
         },
       ),
     );
