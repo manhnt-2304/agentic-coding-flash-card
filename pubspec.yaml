@@ -53,6 +53,7 @@ dependencies:
   
   # Icons
   cupertino_icons: ^1.0.8
+  sqlite3_web: ^0.4.1
 
 dev_dependencies:
   flutter_test:

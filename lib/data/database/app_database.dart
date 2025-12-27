@@ -1,8 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
-import 'dart:io';
+import 'connection/connection.dart' as impl;
 
 part 'app_database.g.dart';
 
@@ -74,10 +71,10 @@ class UserPreferences extends Table {
 
 @DriftDatabase(tables: [Decks, Cards, StudySessions, CardReviews, UserPreferences])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  AppDatabase() : super(impl.connect());
   
   // For testing
-  AppDatabase.inMemory() : super(NativeDatabase.memory());
+  AppDatabase.inMemory() : super(impl.connectInMemory());
 
   @override
   int get schemaVersion => 1;
@@ -96,12 +93,4 @@ class AppDatabase extends _$AppDatabase {
       ''');
     },
   );
-}
-
-LazyDatabase _openConnection() {
-  return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'flashcard_learning.sqlite'));
-    return NativeDatabase(file);
-  });
 }
