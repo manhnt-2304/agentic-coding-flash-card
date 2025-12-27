@@ -24,7 +24,15 @@ class DeckListScreen extends ConsumerWidget {
               Navigator.pushNamed(context, '/ui-showcase');
             },
           ),
-          // Demo button to showcase FlashCard widget
+          // RatingButtons Demo button (Task 1.5)
+          IconButton(
+            icon: const Icon(Icons.star_outline),
+            tooltip: 'RatingButtons Demo (Task 1.5)',
+            onPressed: () {
+              Navigator.pushNamed(context, '/rating-buttons-demo');
+            },
+          ),
+          // FlashCard Demo button (Task 1.4)
           IconButton(
             icon: const Icon(Icons.play_circle_outline),
             tooltip: 'FlashCard Demo (Task 1.4)',
