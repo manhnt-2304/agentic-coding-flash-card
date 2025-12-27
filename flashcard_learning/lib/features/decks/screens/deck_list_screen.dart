@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flashcard_learning/features/decks/providers/deck_provider.dart';
 import 'package:flashcard_learning/features/decks/widgets/deck_card.dart';
 import 'package:flashcard_learning/features/decks/widgets/create_deck_dialog.dart';
+import 'package:flashcard_learning/features/decks/screens/deck_detail_screen.dart';
 
 class DeckListScreen extends ConsumerWidget {
   const DeckListScreen({super.key});
@@ -63,7 +64,13 @@ class DeckListScreen extends ConsumerWidget {
               return DeckCard(
                 deckWithCardCount: deckWithCardCount,
                 onTap: () {
-                  // TODO: Navigate to deck detail screen
+                  // Navigate to deck detail screen
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => DeckDetailScreen(deckId: deckWithCardCount.deck.id),
+                    ),
+                  );
                 },
                 onLongPress: () {
                   _showActionMenu(context, ref, deckWithCardCount.deck.id);
