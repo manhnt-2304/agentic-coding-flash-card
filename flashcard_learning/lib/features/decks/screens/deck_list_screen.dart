@@ -15,6 +15,16 @@ class DeckListScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Flashcard Decks'),
         elevation: 0,
+        actions: [
+          // Demo button to showcase FlashCard widget
+          IconButton(
+            icon: const Icon(Icons.play_circle_outline),
+            tooltip: 'FlashCard Demo (Task 1.4)',
+            onPressed: () {
+              Navigator.pushNamed(context, '/flash-card-demo');
+            },
+          ),
+        ],
       ),
       body: deckListAsync.when(
         data: (decks) {
