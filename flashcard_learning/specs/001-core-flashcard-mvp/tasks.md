@@ -940,9 +940,9 @@ class CardRepositoryImpl implements CardRepository {
 
 ### Task 1.3: DeckList Screen UI 🎨🧪 ✅ COMPLETED
 
-**Description**: Build deck list screen with FAB to create decks and integrate into main.dart
+**Description**: Build deck list screen with FAB to create decks
 
-**Status**: ✅ Completed on 2025-12-26 (Commits: 54fd2d6, d157f97, Issue #6 closed)
+**Status**: ✅ Completed on 2025-12-26 (Commit: 54fd2d6, Issue #6 closed)
 
 **Acceptance Criteria**:
 - ✅ Screen matches contract from `contracts/components.md`
@@ -950,8 +950,6 @@ class CardRepositoryImpl implements CardRepository {
 - ✅ FAB opens create deck dialog
 - ✅ Long-press shows action menu
 - ✅ Widget tests pass (6/6 tests passing)
-- ✅ Integrated into main.dart as app entry point with ProviderScope
-- ✅ Material 3 theme configured with light/dark mode support
 
 **Dependencies**: Task 1.1
 
