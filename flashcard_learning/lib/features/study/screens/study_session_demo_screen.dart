@@ -1,5 +1,4 @@
 import 'package:flashcard_learning/core/navigation/routes.dart';
-import 'package:flashcard_learning/data/database/app_database.dart';
 import 'package:flashcard_learning/data/repositories/deck_repository.dart';
 import 'package:flashcard_learning/data/repositories/card_repository.dart';
 import 'package:flashcard_learning/features/study/screens/study_session_screen.dart';
