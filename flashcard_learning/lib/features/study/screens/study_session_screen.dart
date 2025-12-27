@@ -13,11 +13,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 final studySessionProvider = StateNotifierProvider.autoDispose
     .family<StudySessionNotifier, StudySessionState, StudySessionArgs>(
   (ref, args) {
+    final database = ref.watch(databaseProvider);
     final cardRepository = ref.watch(cardRepositoryProvider);
     final reviewRepository = ref.watch(reviewRepositoryProvider);
     
     return StudySessionNotifier(
       args: args,
+      database: database,
       cardRepository: cardRepository,
       reviewRepository: reviewRepository,
     );
@@ -79,7 +81,23 @@ class StudySessionScreen extends ConsumerWidget {
 
     // Show completion screen when all cards reviewed
     if (sessionState.isComplete) {
-      return _buildCompletionScreen(context, sessionState);
+      // Navigate to SessionSummaryScreen
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacementNamed(
+          '/session-summary',
+          arguments: sessionState.sessionId,
+        );
+      });
+      
+      // Show loading while navigating
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Loading Summary...'),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
     }
 
     // Show study interface
@@ -164,144 +182,6 @@ class StudySessionScreen extends ConsumerWidget {
               flex: 1,
               child: SizedBox.shrink(),
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompletionScreen(
-      BuildContext context, StudySessionState sessionState) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final stats = {
-      'cardsReviewed': sessionState.cardsReviewed,
-      'cardsKnown': sessionState.cardsKnown,
-      'cardsForgot': sessionState.cardsForgot,
-      'accuracyRate': sessionState.cardsReviewed > 0
-          ? (sessionState.cardsKnown / sessionState.cardsReviewed * 100)
-              .toStringAsFixed(1)
-          : '0.0',
-    };
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Session Complete'),
-        automaticallyImplyLeading: false,
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Success icon
-              Icon(
-                Icons.check_circle_outline,
-                size: 80,
-                color: colorScheme.primary,
-              ),
-              const SizedBox(height: 24),
-
-              // Title
-              Text(
-                'Great Job!',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              const SizedBox(height: 32),
-
-              // Statistics cards
-              _buildStatCard(
-                context,
-                'Cards Reviewed',
-                '${stats['cardsReviewed']}',
-                Icons.style,
-                colorScheme.primaryContainer,
-              ),
-              const SizedBox(height: 16),
-
-              _buildStatCard(
-                context,
-                'Known',
-                '${stats['cardsKnown']}',
-                Icons.check_circle,
-                colorScheme.secondaryContainer,
-              ),
-              const SizedBox(height: 16),
-
-              _buildStatCard(
-                context,
-                'Forgot',
-                '${stats['cardsForgot']}',
-                Icons.cancel,
-                colorScheme.errorContainer,
-              ),
-              const SizedBox(height: 16),
-
-              _buildStatCard(
-                context,
-                'Accuracy',
-                '${stats['accuracyRate']}%',
-                Icons.trending_up,
-                colorScheme.tertiaryContainer,
-              ),
-              const SizedBox(height: 32),
-
-              // Done button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: const Text('Done'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatCard(
-    BuildContext context,
-    String label,
-    String value,
-    IconData icon,
-    Color backgroundColor,
-  ) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 32),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                Text(
-                  value,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
     );

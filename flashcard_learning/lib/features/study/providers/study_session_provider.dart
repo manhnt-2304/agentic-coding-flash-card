@@ -4,6 +4,7 @@ import 'package:flashcard_learning/data/repositories/card_repository.dart';
 import 'package:flashcard_learning/data/repositories/review_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:drift/drift.dart';
 
 /// State for study session
 class StudySessionState {
@@ -59,13 +60,16 @@ class StudySessionNotifier extends StateNotifier<StudySessionState> {
   final StudySessionArgs args;
   final CardRepository _cardRepository;
   final ReviewRepository _reviewRepository;
+  final AppDatabase _database;
 
   StudySessionNotifier({
     required this.args,
     required CardRepository cardRepository,
     required ReviewRepository reviewRepository,
+    required AppDatabase database,
   })  : _cardRepository = cardRepository,
         _reviewRepository = reviewRepository,
+        _database = database,
         super(StudySessionState(
           cards: [],
           currentIndex: 0,
@@ -76,7 +80,25 @@ class StudySessionNotifier extends StateNotifier<StudySessionState> {
           cardsKnown: 0,
           cardsForgot: 0,
         )) {
-    _loadCards();
+    _initSession();
+  }
+
+  /// Initialize session: Create session record and load cards
+  Future<void> _initSession() async {
+    // Create session record in database
+    await _database.into(_database.studySessions).insert(
+      StudySessionsCompanion(
+        id: Value(state.sessionId),
+        deckId: Value(args.deckId),
+        startTime: Value(state.startTime),
+        cardsReviewed: Value(0),
+        cardsKnown: Value(0),
+        cardsForgot: Value(0),
+      ),
+    );
+
+    // Load cards
+    await _loadCards();
   }
 
   /// Load cards for study session
@@ -119,12 +141,32 @@ class StudySessionNotifier extends StateNotifier<StudySessionState> {
         rating == 1 ? state.cardsForgot + 1 : state.cardsForgot;
 
     // Move to next card
+    final newIndex = state.currentIndex + 1;
     state = state.copyWith(
-      currentIndex: state.currentIndex + 1,
+      currentIndex: newIndex,
       isFlipped: false, // Reset flip state
       cardsReviewed: newCardsReviewed,
       cardsKnown: newCardsKnown,
       cardsForgot: newCardsForgot,
+    );
+
+    // End session if complete
+    if (newIndex >= state.cards.length) {
+      await _endSession();
+    }
+  }
+
+  /// End session: Update session record with end time and stats
+  Future<void> _endSession() async {
+    await (_database.update(_database.studySessions)
+          ..where((s) => s.id.equals(state.sessionId)))
+        .write(
+      StudySessionsCompanion(
+        endTime: Value(DateTime.now()),
+        cardsReviewed: Value(state.cardsReviewed),
+        cardsKnown: Value(state.cardsKnown),
+        cardsForgot: Value(state.cardsForgot),
+      ),
     );
   }
 

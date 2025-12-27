@@ -5,6 +5,7 @@ import 'package:flashcard_learning/features/cards/screens/flash_card_demo_screen
 import 'package:flashcard_learning/features/cards/screens/ui_showcase_screen.dart';
 import 'package:flashcard_learning/features/cards/screens/rating_buttons_demo_screen.dart';
 import 'package:flashcard_learning/features/study/screens/study_session_demo_screen.dart';
+import 'package:flashcard_learning/features/study/screens/session_summary_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -40,6 +41,15 @@ class MyApp extends StatelessWidget {
       ),
       themeMode: ThemeMode.system,
       home: const DeckListScreen(),
+      onGenerateRoute: (settings) {
+        if (settings.name == '/session-summary') {
+          final sessionId = settings.arguments as String;
+          return MaterialPageRoute(
+            builder: (context) => SessionSummaryScreen(sessionId: sessionId),
+          );
+        }
+        return null;
+      },
       routes: {
         '/flash-card-demo': (context) => const FlashCardDemoScreen(),
         '/ui-showcase': (context) => const UIShowcaseScreen(),
